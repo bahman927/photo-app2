@@ -17,7 +17,8 @@ const PhotoCarousel = () => {
   };
 
   return (
-    <div className="container">
+    // <div className="container">
+    <div className="carousel">
       <div className="slide" ref={slideRef}>
       
         <div

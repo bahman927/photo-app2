@@ -1,0 +1,17 @@
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 800px; /* Adjust as needed */
+  margin: 0 auto;
+  text-align: center;
+}
+
+.carousel-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.carousel-buttons {
+  margin-top: 10px;
+}

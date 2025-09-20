@@ -1,144 +1,113 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-const FormData = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    category: '',
-    photo: null,
+const FormData = ({ onSuccess }) => {
+  const [formValues, setFormValues] = useState({
+    name: "",
+    category: "",
+    title: "",
+    image: null,
   });
+  const navigate = useNavigate();
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (files) {
+      setFormValues((prev) => ({ ...prev, [name]: files[0] }));
+    } else {
+      setFormValues((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleFileChange = (event) => {
-    setFormData({ ...formData, photo: event.target.files[0] });
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
     const data = new FormData();
-    data.append('name', formData.name);
-    data.append('category', formData.category);
-    data.append('photo', formData.photo);
+    data.append("name", formValues.name);
+    data.append("category", formValues.category);
+    data.append("title", formValues.title);
+    data.append("image", formValues.image);
+
+    // uploaded_at can be auto-added by Django model
+    data.append("uploaded_at", new Date().toISOString());
 
     try {
-      const response = await axios.post('http://localhost:3000/FormData', data, {
+      const token = localStorage.getItem("access_Token");
+
+      const response = await fetch("http://127.0.0.1:8000/photos/", {
+        method: "POST",
         headers: {
-          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
         },
+        body: data,
       });
-      console.log(response.data);
-      alert('Form submitted successfully!');
-    } catch (error) {
-      console.error('Error submitting form:', error);
+
+      if (!response.ok) {
+        throw new Error("Failed to upload photo");
+      }
+
+      if (onSuccess) onSuccess();
+      navigate("/"); // back to Home
+    } catch (err) {
+      console.error(err);
+      alert("Error uploading photo");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Name:</label>
-        <input type="text" name="name" onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Category:</label>
-        <input type="text" name="email" onChange={handleInputChange} required />
-      </div>
-      <div>
-        <label>Photo:</label>
-        <input type="file" name="photo" onChange={handleFileChange} required />
-      </div>
-      <button type="submit">Submit</button>
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 p-6 bg-blue-200 border border-gray-400 rounded-lg shadow-md"
+    >
+      <h2 className="mb-2 text-xl font-bold">Upload New Photo</h2>
+
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        value={formValues.name}
+        onChange={handleChange}
+        className="p-2 border rounded"
+        required
+      />
+
+      <input
+        type="text"
+        name="category"
+        placeholder="Category"
+        value={formValues.category}
+        onChange={handleChange}
+        className="p-2 border rounded"
+        required
+      />
+
+      <input
+        type="text"
+        name="title"
+        placeholder="Title"
+        value={formValues.title}
+        onChange={handleChange}
+        className="p-2 border rounded"
+        required
+      />
+
+      <input
+        type="file"
+        name="image"
+        accept="image/*"
+        onChange={handleChange}
+        className="p-2 border rounded"
+        required
+      />
+
+      <button
+        type="submit"
+        className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+      >
+        Submit
+      </button>
     </form>
   );
 };
 
 export default FormData;
-
-
-
-
-
-// import React, { useState } from "react";
-// import axios from "axios";
-
-// const PhotoForm = () => {
-//   const [formData, setFormData] = useState({
-//     name: "",
-//     category: "",
-//     picture: "",
-//     isActive: true,
-//   });
-
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setFormData({ ...formData, [name]: value });
-//   };
-
-//   const handleFileChange = (e) => {
-//     const file = e.target.files[0];
-//     const reader = new FileReader();
-//     reader.onloadend = () => {
-//       setFormData({ ...formData, picture: reader.result });
-//     };
-//     reader.readAsDataURL(file);
-//   };
-
-//   const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     try {
-//       const response = await axios.post("http://localhost:3001/photos", formData);
-//       console.log("Photo created:", response.data);
-//       setFormData({ name: "", category: "", picture: "", isActive: true });
-//     } catch (error) {
-//       console.error("Error creating photo:", error);
-//     }
-//   };
-
-//   return (
-//     <form onSubmit={handleSubmit}>
-//       <div>
-//         <label>Name:</label>
-//         <input
-//           type="text"
-//           name="name"
-//           value={formData.name}
-//           onChange={handleChange}
-//           required
-//         />
-//       </div>
-//       <div>
-//         <label>Category:</label>
-//         <input
-//           type="text"
-//           name="category"
-//           value={formData.category}
-//           onChange={handleChange}
-//           required
-//         />
-//       </div>
-//       <div>
-//         <label>Picture:</label>
-//         <input type="file" accept="image/*" onChange={handleFileChange} required />
-//       </div>
-//       <div>
-//         <label>Is Active:</label>
-//         <input
-//           type="checkbox"
-//           name="isActive"
-//           checked={formData.isActive}
-//           onChange={(e) =>
-//             setFormData({ ...formData, isActive: e.target.checked })
-//           }
-//         />
-//       </div>
-//       <button type="submit">Submit</button>
-//     </form>
-//   );
-// };
-
-// export default PhotoForm;
