@@ -1,0 +1,34 @@
+# render.yaml
+services:
+  - type: web
+    name: photo-App2
+    env: python
+    plan: free     # or starter/standard depending on your needs
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    startCommand: |
+      bash -lc "python manage.py migrate --noinput && gunicorn photoGallery.wsgi:application --bind 0.0.0.0:$PORT"
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        sync: false   # set in Render dashboard or via env group
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ENV
+        value: production
+      - key: ALLOWED_HOSTS
+        value: yourapp.onrender.com
+      - key: AWS_ACCESS_KEY_ID
+        sync: false   # set in Render dashboard
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false   # set in Render dashboard
+      - key: AWS_STORAGE_BUCKET_NAME
+        value: your-bucket-name
+      - key: AWS_S3_REGION_NAME
+        value: us-east-1
+    databases:
+      - name: photo-gallery-db
+
+databases:
+  - name: photo-gallery-db
+    plan: free   # upgrade later if needed

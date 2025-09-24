@@ -98,33 +98,8 @@ const toggleModal = () => {
     }
   };
 
-  // helper: start editing a photo (call this from Edit button)
-  const startEdit = (photo) => {
-      setEditingPhoto(photo);
-      setEditTitle(photo.title || "");
-      setEditDescription(photo.description || "");
-      // store category id as string for the <select>
-      setEditCategory(photo.category?.id ? String(photo.category.id) : "");
-   };
-
-    // cancel editing (go back to list view inside modal)
-  const cancelEdit = () => {
-      setEditingPhoto(null);
-      setEditTitle("");
-      setEditDescription("");
-      setEditCategory("");
-  };
   
-  const categories = [
-  { id: 1, name: "Portrait" },
-  { id: 2, name: "family" },
-  { id: 3, name: "Nature" },
-  { id: 4, name: "Skyscraper" },
-  { id: 5, name: "Outdoor" },
-  { id: 7, name: "People" },
-];
-
-//------------set handleEdit
+//------------set handleEdit----------
 const handleEdit = (photo) => {
   setEditingPhoto(photo);
   setEditTitle(photo.title);
@@ -208,7 +183,8 @@ const handleEdit = (photo) => {
   
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 text-white bg-gray-800 shadow-md">
+    <header className="flex items-center justify-between px-6 py-4 text-white bg-gray-800 shadow-md md:items-center">
+    {/* <header className="flex flex-col gap-3 px-4 py-3 text-white bg-gray-800 md:flex-row md:items-center md:justify-between custom-header"> */}
       <div className="mr-64 text-2xl font-bold animate-wave">Hannah PhotoGallery</div> 
        
         <div>
@@ -225,11 +201,11 @@ const handleEdit = (photo) => {
             {/* <option value="select Category"></option> */}
             <option value="All">All</option>
             <option value="Outdoor">Outdoor</option>
-            <option value="portrait">portrait</option>
+            <option value="Portrait">Portrait</option>
             <option value="Family">Family</option>
             <option value="Nature">Nature</option>
-            <option value="Skyscraper">SkyScraper</option>
-            <option value="people">People</option>
+            <option value="Skyscraper">Skyscraper</option>
+            <option value="People">People</option>
             
           </select>
         </div>
@@ -434,15 +410,7 @@ const handleEdit = (photo) => {
                           ...(uploading ? styles.disabledButton : {})
                         }}
                         disabled={!isLoggedIn || uploading}
-                   
-                    //   // style={{
-                    //   //      ...styles.deleteButton,
-                    //   //      ...(isLoggedIn ? {} : { opacity: 0.5, cursor: "not-allowed" })
-                    //   //     }} 
-                    //   //    disabled={!isLoggedIn}
-                    // style={{ ...styles.chooseButton2, ...(uploading ? styles.disabledButton : {}) }} 
-                    // disabled={uploading}
-                     > 
+                                        > 
                      <i className="fas fa-file-image"></i>
                      Choose File 
                    </button>
@@ -468,9 +436,6 @@ const handleEdit = (photo) => {
              </form> 
             </div>
            </div>
-                     
-                     
-      
           </div>
 
        
@@ -834,35 +799,4 @@ const styles = {
 
 
 
-//  {isManageOpen && ( <div ref={manageModalRef}
-//                            style={{ ...styles.modal, ...(isManageOpen ? styles.modalOpen : styles.modalClosed),
-//                             width: "500px", }} >
-//                       <div style={styles.modalContent}> 
-//                         <h3 style={styles.modalTitle}>Manage Photos</h3> 
-//                         <div style={styles.photoList}>
-//                             {photos.length === 0 ?
-//                             ( <p style={styles.noPhotosText}>No photos available.</p> ) 
-//                             : 
-//                             ( photos.map((photo) => ( <div key={photo.id} style={styles.photoItem} > 
-                            
-//                             {/* Fixed-size Thumbnail */} 
-//                             <img src={photo.image} alt={photo.title} style={styles.photoThumbnail} /> 
-//                             <div style={styles.photoInfo}> 
-//                             <h4 style={styles.photoTitle}>{photo.title}</h4>
-//                             <p style={styles.photoCategory}> {photo.category?.name} </p> 
-//                          </div> 
-//                          <button onClick={() => handleEdit(photo.id)} style={styles.editButton} >
-//                            Edit
-//                          </button>
-//                          <button onClick={() => handleDelete(photo.id)} style={styles.deleteButton} >
-//                            Delete 
-//                          </button>
-//                        </div> )) )}
-//                        </div> 
-//                         <div style={styles.modalActions}>
-//                          <button onClick={() => setIsManageOpen(false)} style={styles.closeButton} > Close 
-//                          </button> 
-//                         </div> 
-//                       </div>
-//                     </div> 
-//                    )} 
+ 

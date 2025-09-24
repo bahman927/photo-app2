@@ -30,8 +30,7 @@ const PhotoCarousel = () => {
 
 
   return (
-    <div className="carousel">
-     
+    <div className="carousel"> 
       <div className="slide" ref={slideRef}>
         {photos.map((photo) => (
           <div

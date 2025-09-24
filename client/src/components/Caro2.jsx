@@ -32,6 +32,12 @@ const PhotoCarousel = () => {
       ? photos[Math.min(currentIndex, photos.length - 1)]
       : null;
 
+  
+
+  // const handleSelect = (index) => {
+  //   setCurrentIndex(index);
+  // };
+
   return (
     // <div className="carousel-container">
  <div>
@@ -49,8 +55,7 @@ const PhotoCarousel = () => {
 
 
       {/* Thumbnails */}
-      <div className="slide"  ref={slideRef} style={{ display: "flex", justifyContent:"center",  marginTop: "5px",   // ✅ reduce space from main-display
-    gap: "5px",   }}>
+      <div className="slide"  ref={slideRef} style={{ display: "flex", justifyContent:"center" }}>
         {Array.isArray(photos) &&
           photos.map((photo, index) => (
             <div

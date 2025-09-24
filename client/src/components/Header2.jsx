@@ -1,226 +1,204 @@
-import React, { useState } from "react";
-import FormData from "/client/src/components/FormData";
+import React, { useRef, useState, useEffect } from "react";
+import { useCategory } from "../context/CategoryContext";
+import { useNavigate, Link } from "react-router-dom";
+import { apiRequest } from "../utils/api";
 
-const Header = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [showForm, setShowForm] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+export default function Header() {
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
+  const [isManageOpen, setIsManageOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [editingPhoto, setEditingPhoto] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+  const [editCategory, setEditCategory] = useState("");
 
-  // Handle category click
-  const handleCategoryClick = (category) => {
-    setSelectedCategory(category);   // show category details
-    setShowForm(false);              // hide form if open
-    setIsDropdownOpen(false);        // close dropdown
-  };
+  const aboutMeRef = useRef(null);
+  const manageModalRef = useRef(null);
 
-  // Handle InsertPhoto link
-  const handleLinkClick = (e) => {
+  const username = localStorage.getItem("username");
+  const isLoggedIn = !!username;
+  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [title, setTitle] = useState("");
+  const [uploading, setUploading] = useState(false);
+
+  const { category, setCategory, photos, setPhotos } = useCategory();
+  const [menuOpen, setMenuOpen] = useState(false); // mobile hamburger
+
+  // ---------------- Handlers ----------------
+  const handleInsertPhoto = () => fileInputRef.current.click();
+  const handleFileChange = (e) => setSelectedFile(e.target.files[0]);
+
+  const handleUpload = async (e) => {
     e.preventDefault();
-    setShowForm(true);              // show insert form
-    setSelectedCategory(null);      // hide category details
+    if (!selectedFile || !title || !category) return alert("Please fill all fields");
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", "Uploaded from frontend");
+      formData.append("name", username);
+      formData.append("category_id", category);
+      formData.append("image", selectedFile);
+
+      const response = await apiRequest("/photos/", {
+        method: "POST",
+        body: formData,
+      });
+
+      setPhotos([...photos, response.data]);
+      setSelectedFile(null);
+      setTitle("");
+      setCategory("");
+      setIsUploadOpen(false);
+    } catch (err) {
+      alert("Upload failed: " + err.message);
+    } finally {
+      setUploading(false);
+    }
   };
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_Token");
+    localStorage.removeItem("refresh_Token");
+    localStorage.removeItem("username");
+    navigate("/");
+  };
+
+  const toggleAbout = () => setIsAboutOpen(!isAboutOpen);
+  const toggleManage = () => setIsManageOpen(!isManageOpen);
+  const toggleUpload = () => setIsUploadOpen(!isUploadOpen);
+
+  // ---------------- Close modal on outside click ----------------
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        aboutMeRef.current &&
+        !aboutMeRef.current.contains(event.target)
+      ) setIsAboutOpen(false);
+
+      if (
+        manageModalRef.current &&
+        !manageModalRef.current.contains(event.target)
+      ) setIsManageOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   return (
-    <header className="flex flex-col items-center w-full px-5 py-4 bg-gray-300 border-b shadow-md">
-      {/* Logo */}
-      <div className="mb-4 text-2xl font-bold">Hannah PhotoGallery</div>
+    <header className="px-4 py-3 text-white bg-gray-800">
+      {/* Top bar: logo + hamburger + desktop menu */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-0">
+        {/* Logo */}
+        <div className="text-2xl font-bold">Hannah PhotoGallery</div>
 
-      {/* Navigation */}
-      <nav className="flex items-center gap-8">
-        <a href="#" className="hover:text-blue-500">Home</a>
-
-        {/* Category Dropdown */}
-        <div
-          className="relative"
-          onMouseEnter={() => setIsDropdownOpen(true)}
-          onMouseLeave={() => setIsDropdownOpen(false)}   // ✅ fixed: keeps menu open while hovering
+        {/* Category dropdown */}
+        <select
+          className="w-full px-2 py-1 text-black rounded md:w-auto"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
         >
-          <button className="z-20 hover:text-gray-400">Category</button>
-          {isDropdownOpen && (
-            <ul className="absolute z-50 py-2 mt-2 bg-gray-200 rounded shadow-lg">
-              {["Street", "Sport", "Fashion", "Nature", "Outdoor"].map(
-                (category) => (
-                  <li
-                    key={category}
-                    className="px-4 py-2 cursor-pointer hover:bg-gray-500"
-                    onClick={() => handleCategoryClick(category)}
-                  >
-                    {category}
-                  </li>
-                )
-              )}
-            </ul>
-          )}
-        </div>
+          <option value="All">All</option>
+          <option value="Outdoor">Outdoor</option>
+          <option value="Portrait">Portrait</option>
+          <option value="Family">Family</option>
+          <option value="Nature">Nature</option>
+          <option value="Skyscraper">Skyscraper</option>
+          <option value="People">People</option>
+        </select>
 
-        {/* Insert Photo */}
-        <a href="#" className="hover:text-gray-400" onClick={handleLinkClick}>
-          Insert Photo
-        </a>
+        {/* Desktop menu */}
+        <nav className="items-center hidden gap-4 md:flex">
+          <button
+            className="px-3 py-1 bg-blue-600 rounded"
+            onClick={toggleManage}
+          >
+            Manage Photos
+          </button>
+          <button
+            className="flex items-center gap-1 px-3 py-1 bg-green-600 rounded"
+            onClick={toggleUpload}
+          >
+            <i className="fas fa-cloud-upload-alt"></i> Upload
+          </button>
+          <button
+            className="px-3 py-1 bg-gray-600 rounded"
+            onClick={toggleAbout}
+          >
+            About Me
+          </button>
+        </nav>
 
-        <a href="#" className="text-xl hover:text-gray-400">Contact Us</a>
-        <a href="#" className="hover:text-gray-400">About Me</a>
-        <a href="#" className="hover:text-gray-400">Login</a>
-      </nav>
+        {/* Mobile hamburger */}
+        <button
+          className="self-end text-2xl md:hidden"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          ☰
+        </button>
 
-      {/* Insert Photo Form */}
-      {showForm && (
-        <div className="w-1/2 mt-6">
-          <div className="p-6 bg-blue-200 border border-gray-700 rounded-lg shadow">
-            <FormData />
-          </div>
+        {/* Mobile menu */}
+        {menuOpen && (
+          <nav className="flex flex-col gap-2 mt-2 md:hidden">
+            <button
+              className="px-3 py-1 bg-blue-600 rounded"
+              onClick={toggleManage}
+            >
+              Manage Photos
+            </button>
+            <button
+              className="flex items-center gap-1 px-3 py-1 bg-green-600 rounded"
+              onClick={toggleUpload}
+            >
+              <i className="fas fa-cloud-upload-alt"></i> Upload
+            </button>
+            <button
+              className="px-3 py-1 bg-gray-600 rounded"
+              onClick={toggleAbout}
+            >
+              About Me
+            </button>
+          </nav>
+        )}
+      </div>
+
+      {/* Login / Logout */}
+      <div className="flex items-center gap-2 mt-2 md:mt-0">
+        {username ? (
+          <>
+            <span className="font-bold text-blue-400">Welcome, {username}</span>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-500 rounded hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <Link to="/login" className="font-bold hover:text-gray-400">
+            Login
+          </Link>
+        )}
+      </div>
+
+      {/* About Me Modal */}
+      {isAboutOpen && (
+        <div className="absolute z-50 p-4 bg-white rounded shadow top-16 right-4 w-80">
+          <h3 className="mb-2 text-lg font-bold">About Me</h3>
+          <p>Hello! I'm a passionate developer with React & JS expertise.</p>
+          <p>When I'm not coding, I hike, read, or cook new recipes.</p>
+          <button
+            className="px-3 py-1 mt-2 text-white bg-gray-500 rounded"
+            onClick={toggleAbout}
+          >
+            Close
+          </button>
         </div>
       )}
 
-      {/* Category Details */}
-      {selectedCategory && (
-        <div className="w-1/2 mt-6">
-          <div className="p-6 text-center bg-white border border-gray-700 rounded-lg shadow">
-            <h2 className="mb-2 text-xl font-semibold">{selectedCategory}</h2>
-            <p className="text-gray-600">
-              Here are some details about <strong>{selectedCategory}</strong> photography.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Manage Photos & Upload modals can be added similarly */}
     </header>
   );
-};
-
-export default Header;
-    <div className="flex items-center gap-8" style={styles.menuItem}>
-           <button
-                style={{
-                  ...styles.menuButton,
-                  ...(isUploadOpen ? styles.activeButton : {}),
-                }}
-                onClick={toggleManage}
-              >
-                Upload Photos
-           </button>
-       
-        {username && (
-          <>
-            {/* Upload button */}
-            <form onSubmit={handleUpload} className="flex items-center gap-2">
-              <input
-                type="file"
-                ref={fileInputRef}
-                style={{ display: "none" }}
-                onChange={handleFileChange}
-              />
-
-              <input
-                type="text"
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="px-2 py-1 text-black rounded"
-              />
-
-              <button
-                type="button"
-                onClick={handleInsertPhoto}
-                className="px-3 py-2 font-bold text-white bg-green-500 rounded-lg hover:bg-green-600"
-                disabled={uploading}
-              >
-                Choose File
-              </button>
-
-              <button
-                type="submit"
-                className="px-3 py-2 font-bold text-white bg-blue-500 rounded-lg hover:bg-blue-600"
-                disabled={uploading}
-              >
-                {uploading ? "Uploading..." : "Upload"}
-              </button>
-            </form>
-        
-            {/* Delete Photos button */}
-            <div style={styles.menuItem}>
-              <button
-                style={{
-                  ...styles.menuButton,
-                  ...(isManageOpen ? styles.activeButton : {}),
-                }}
-                onClick={toggleManage}
-              >
-                Delete Photos
-              </button>
-
-              {isManageOpen && (
-                <div
-                  ref={manageModalRef}
-                  style={{
-                    ...styles.modal,
-                    ...(isManageOpen ? styles.modalOpen : styles.modalClosed),
-                    width: "500px",
-                  }}
-                >
-                  <div style={styles.modalContent}>
-                    <h3 style={styles.modalTitle}>Manage Photos</h3>
-
-                    <div style={styles.photoList}>
-                      {photos.length === 0 ? (
-                        <p style={styles.noPhotosText}>No photos available.</p>
-                      ) : (
-                        photos.map((photo) => (
-                          <div
-                            key={photo.id}
-                            style={styles.photoItem}
-                          >
-                            {/* Fixed-size Thumbnail */}
-                            <img
-                              src={photo.image}
-                              alt={photo.title}
-                              style={styles.photoThumbnail}
-                            />
-
-                            {/* Info takes remaining space */}
-                            <div style={styles.photoInfo}>
-                              <h4 style={styles.photoTitle}>{photo.title}</h4>
-                              <p style={styles.photoCategory}>
-                                {photo.category?.name}
-                              </p>
-                            </div>
-
-                            {/* Delete Button */}
-                            <button
-                              onClick={() => handleDelete(photo.id)}
-                              style={styles.deleteButton}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        ))
-                      )}
-                    </div>
-
-                    {/* Close Button */}
-                    <div style={styles.modalActions}>
-                      <button
-                        onClick={() => setIsManageOpen(false)}
-                        style={styles.closeButton}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div> 
-
-
-
-
-//  style={{
-//      ...styles.deleteButton,
-//       ...(isLoggedIn ? {} : { opacity: 0.5, cursor: "not-allowed" })
-//                           }} 
-//       disabled={!isLoggedIn}
-//                     style={{ ...styles.chooseButton2, ...(uploading ? styles.disabledButton : {}) }} 
-//                     disabled={uploading}
-//                      > 
+}
