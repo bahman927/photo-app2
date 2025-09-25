@@ -24,6 +24,8 @@ services:
         sync: false   # set in Render dashboard
       - key: AWS_SECRET_ACCESS_KEY
         sync: false   # set in Render dashboard
+      - key: AWS_DEFAULT_ACL
+        value: public-read
       - key: AWS_STORAGE_BUCKET_NAME
         value: photo-app-bahman-123
       - key: AWS_S3_REGION_NAME

@@ -6,23 +6,14 @@ import dj_database_url
 SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
  
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# SECRET_KEY = "django-insecure-*l*-=fp1kgjquiz670k@2uwigk-du$%xpt2ozjqjokc00135v0"
-
 # ---------- CORE ----------
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe-secret-key")
 DEBUG = config("DJANGO_DEBUG", default=False, cast=bool)
 ENVIRONMENT = config("DJANGO_ENV", default="development")
 
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost").split(",")
- 
-
+# ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost").split(",")
 ALLOWED_HOSTS = ["*"]
 
 # ---------- DATABASE ----------
@@ -111,6 +102,7 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # serve static files
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -119,7 +111,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # serve static files
+   
 ]
 
 ROOT_URLCONF = "backend.urls"
@@ -141,31 +133,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': config('DB_NAME'),
-#         'USER': config('DB_USER'),
-#         'PASSWORD': config('DB_PASSWORD'),
-#         'HOST': config('DB_HOST', default='localhost'),
-#         'PORT': config('DB_PORT', default='5432'),
-#     }
-# }
-
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -182,10 +149,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
  
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
@@ -203,18 +166,11 @@ STATICFILES_DIRS = [
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"  # for collectstatic (production)
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5174",   # React dev
-    "https://myapp.netlify.app",  # Example for production
+    "http://localhost:5173",   # React dev
+    "http://photo-app2.onrender.com",  # Example for production
 ]
 CORS_ALLOW_CREDENTIALS = True
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
