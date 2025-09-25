@@ -1,0 +1,36 @@
+# render.yaml
+services:
+  - type: web
+    name: photo-app2
+    env: python
+    plan: free   # or starter/standard depending on your needs
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    startCommand: |
+      bash -lc "python manage.py migrate --noinput && gunicorn backend.wsgi:application --bind 0.0.0.0"
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: backend.settings
+      - key: DJANGO_SECRET_KEY
+        sync: false   # set securely in Render dashboard
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ENV
+        value: production
+      - key: ALLOWED_HOSTS
+        value: photo-app2.onrender.com
+      - key: AWS_ACCESS_KEY_ID
+        sync: false   # set in Render dashboard
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false   # set in Render dashboard
+      - key: AWS_STORAGE_BUCKET_NAME
+        value: photo-app-bahman-123
+      - key: AWS_S3_REGION_NAME
+        value: us-east-1
+    databases:
+      - name: photo-app2-db
+
+databases:
+  - name: photo-app2-db
+    plan: free   # upgrade if you need more storage/performance
