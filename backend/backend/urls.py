@@ -5,7 +5,7 @@ from django.contrib import admin
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", include("api.urls")),   # replace with your app
+    path("", include("backend.api.urls")),   # replace with your app
 ]
 
 # Serve static + media in development
