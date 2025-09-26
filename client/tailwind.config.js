@@ -7,7 +7,9 @@
 
 // tailwind.config.js
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/.jpg"],
+  content: [
+    "./client/index.html",  
+    "./client/src/**/*.{js,jsx,ts,tsx}", "./public/.jpg"],
   theme: {
     extend: {
       keyframes: {
