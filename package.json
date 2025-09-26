@@ -2,7 +2,10 @@
   "name": "photo-app2",
   "version": "1.0.0",
   "scripts": {
-    "start": "vite"
+    "start": "vite",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [],
   "author": "",

@@ -7,6 +7,7 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
  
 # ---------- CORE ----------
 SECRET_KEY = config("DJANGO_SECRET_KEY", default="unsafe-secret-key")
@@ -130,6 +131,10 @@ TEMPLATES = [
         },
     },
 ]
+
+TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "templates")]
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR, "staticfiles")]
 
 WSGI_APPLICATION = "backend.wsgi.application"
 
