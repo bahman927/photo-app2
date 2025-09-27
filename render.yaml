@@ -10,6 +10,7 @@ services:
       npm run build --prefix client
       cp -r client/build/static/* backend/staticfiles/
       cp client/build/index.html backend/templates/
+      pip install -r requirements.txt
       python manage.py collectstatic --noinput
 
     startCommand: 
