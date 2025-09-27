@@ -175,7 +175,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CORS_ALLOW_ALL_ORIGINS = True  # For development only
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",   # React dev
-    "http://photo-app2.onrender.com",  # Example for production
+    "http://photo-app-ovha.onrender.com",  # Example for production
 ]
 CORS_ALLOW_CREDENTIALS = True
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
