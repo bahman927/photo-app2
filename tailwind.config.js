@@ -1,6 +1,10 @@
 // tailwind.config.js
 module.exports = {
-  content: ["./src/**/*.{js,jsx,ts,tsx}", "./public/.jpg"],
+  content: [
+    "./client/src/**/*.{js,jsx,ts,tsx}", "./public/.jpg",
+    "./client/index.html",
+  ],
+     
   theme: {
     extend: {
       animation: {
