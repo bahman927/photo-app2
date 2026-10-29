@@ -44,7 +44,7 @@ if ENVIRONMENT == "production":
     AWS_QUERYSTRING_AUTH = True  # signed URLs for private access
 
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-    MEDIA_URL = f"https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/"
+    
 
 else:
     # ✅ Local dev storage
